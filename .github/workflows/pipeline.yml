@@ -36,6 +36,11 @@ jobs:
       - name: Forçar instalação do Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
+      - name: Mudar Heroku para modo Docker (A Chave Mestra)
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku stack:set container -a ${{ secrets.HEROKU_APP_NAME }}
+
       - name: Deploy no Heroku via Imagem Docker
         uses: akhileshns/heroku-deploy@v3.12.14
         with:
