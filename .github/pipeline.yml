@@ -1,0 +1,46 @@
+name: CI/CD Pipeline - SEBRAE API
+
+# Acionadores da Pipeline (Gabaritando as regras do professor)
+on:
+  push:
+    branches: [ "main" ]  # Exigência: Executar build após o merge
+  workflow_dispatch:      # Exigência: A ordem de implantação deve ser manual
+
+jobs:
+  # ETAPA 1: BUILD E DOCKERHUB (Roda automático e manual)
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Login no DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build e Publicação da Imagem Docker
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # Exigência: "Apenas uma imagem deve ser criada, imagens anteriores removidas"
+          tags: ${{ secrets.DOCKER_USERNAME }}/api-sebrae:latest
+
+  # ETAPA 2: DEPLOY NO HEROKU (Exigência: Só roda se acionado manualmente)
+  deploy-heroku:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' 
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Deploy no Heroku via Imagem Docker
+        uses: akhileshns/heroku-deploy@v3.12.14
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          usedocker: true
