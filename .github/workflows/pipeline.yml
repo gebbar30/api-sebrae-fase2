@@ -27,7 +27,6 @@ jobs:
           push: true
           # Exigência: "Apenas uma imagem deve ser criada, imagens anteriores removidas"
           tags: ${{ secrets.DOCKER_USERNAME }}/api-sebrae:latest
-
   # ETAPA 2: DEPLOY NO HEROKU (Exigência: Só roda se acionado manualmente)
   deploy-heroku:
     needs: build-docker
@@ -37,10 +36,16 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v3
 
+      - name: Forçar instalação do Heroku CLI (Correção do Bug)
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
       - name: Deploy no Heroku via Imagem Docker
         uses: akhileshns/heroku-deploy@v3.12.14
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          usedocker: true
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: true
