@@ -36,7 +36,7 @@ jobs:
       - name: Forçar instalação do Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
 
-      - name: Mudar Heroku para modo Docker (A Chave Mestra)
+      - name: Mudar Heroku para modo Docker
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku stack:set container -a ${{ secrets.HEROKU_APP_NAME }}
@@ -48,3 +48,8 @@ jobs:
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: true
+
+      - name: Ligar o Motor no Heroku (Scale Web)
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku ps:scale web=1 -a ${{ secrets.HEROKU_APP_NAME }}
