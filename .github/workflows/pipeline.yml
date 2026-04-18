@@ -27,6 +27,7 @@ jobs:
           push: true
           # Exigência: "Apenas uma imagem deve ser criada, imagens anteriores removidas"
           tags: ${{ secrets.DOCKER_USERNAME }}/api-sebrae:latest
+          
   # ETAPA 2: DEPLOY NO HEROKU (Exigência: Só roda se acionado manualmente)
   deploy-heroku:
     needs: build-docker
